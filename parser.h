@@ -57,3 +57,23 @@ tree_node_t *parser_parse(parser_rc_t *rc);
 tree_node_t *parser_state(parser_rc_t *rc);
 
 void parser_debug(parser_rc_t *rc,tree_node_t * tree);
+
+void parser_match(parser_rc_t *rc,TokenType expected);
+tree_node_t *parser_stmt(parser_rc_t *rc);
+tree_node_t *parser_if_stmt(parser_rc_t *rc);
+tree_node_t *parser_while_stmt(parser_rc_t *rc);
+tree_node_t *parser_do_stmt(parser_rc_t *rc);
+tree_node_t *parser_assign_stmt(parser_rc_t *rc);
+tree_node_t *parser_unsigned_stmt(parser_rc_t *rc);
+tree_node_t *parser_include(parser_rc_t *rc);
+tree_node_t *parser_define(parser_rc_t *rc);
+tree_node_t *parser_exp(parser_rc_t *rc);
+tree_node_t *parser_simple_exp(parser_rc_t *rc);
+tree_node_t *parser_term(parser_rc_t *rc);
+tree_node_t *parser_factor(parser_rc_t *rc);
+tree_node_t *parser_stmt_seq(parser_rc_t *rc);
+tree_node_t *parser_substate(parser_rc_t *rc);
+tree_node_t *parser_state(parser_rc_t *rc);
+
+
+
