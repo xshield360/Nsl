@@ -1,0 +1,29 @@
+About NSL
+
+It is a small language like c, so we call it c--.
+We can use it to descript the jump state.
+for example:
+
+/*
+state init{
+    unsigned name:8
+	printf("hello\n");
+	goto state1;
+}
+state state1{
+	  printf("world\n");
+}
+*/
+program-> block | state_block
+state_block->{stc|cts id : block} | block
+block->{decls stmts}
+decls -> decls decl | e
+decl -> unsigned id:number
+stmts -> stmts stmt | e
+
+stmt-> loc = bool;
+       |if (bool)stmt
+       |if (bool)stmt else stmt
+       |while(bool)stmt
+       |do stmt while(bool);
+       |block
