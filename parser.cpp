@@ -24,13 +24,13 @@ tree_node_t * parser_parse(parser_rc_t *rc)
 	//deal the '#'
 	if (rc->token.t == T_POUND)
 	{
-	  //#include "a.h" #define A 30
-	  parser_match(rc,T_SHARP);
-	  if (rc->token.t == T_INCLUDE)
-	  {
+		//#include "a.h" #define A 30
+		parser_match(rc,T_SHARP);
+		if (rc->token.t == T_INCLUDE)
+		{
 	    parser_include(rc);
-	  }else if (rc->token.t == T_DEFINE)
-	  {
+		}else if (rc->token.t == T_DEFINE)
+			{
 	    parser_define(rc);
 	  } else {
 	    parser_syntax_error(rc);
