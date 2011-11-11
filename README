@@ -14,16 +14,21 @@ state state1{
 	  printf("world\n");
 }
 */
-program-> block | state_block
+the language contains the following:
+
+program-> sub_block | state_block | header | decls
+
 state_block->{stc|cts id : block} | block
+sub_block -> block
+header -> #define | #include
 block->{decls stmts}
 decls -> decls decl | e
 decl -> unsigned id:number
 stmts -> stmts stmt | e
 
-stmt-> loc = bool;
+stmt-> exp;
        |if (bool)stmt
        |if (bool)stmt else stmt
        |while(bool)stmt
        |do stmt while(bool);
-       |block
+       |exp

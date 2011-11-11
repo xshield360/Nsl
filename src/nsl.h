@@ -1,3 +1,6 @@
+#pragma once
 
-
+#include "stdio.h"
+#include "stdlib.h"
 #include "parser.h"
+#include "inter.h"

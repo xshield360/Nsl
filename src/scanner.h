@@ -1,11 +1,16 @@
+#ifndef __NSL_SCANNER_H__
+#define __NSL_SCANNER_H__
 
 #include <string.h>
+
+#define token_get_name(token) (token_strings[token-T_GLOBAL])
 
 #define BUFFER_SIZE 4096
 #define TOKEN_SIZE_MAX 100
 
 //这里定义一些类型，主要是关键字和一些相关的类型，遇到再往里加
 typedef enum  _TokenType {
+	T_GLOBAL = 257,
 	T_ID, //表示字母开始的数字或字符串，可用来表示函数名，常量等
 	T_NUMBER, //表示任何数字常量
 	T_IF,T_ELSE,T_ENDIF,//表示if else,endif
@@ -13,7 +18,7 @@ typedef enum  _TokenType {
 	T_UNSIGNED,		//表示字符类型相关 unsigned 可以定义无符号数。
 	T_ENUM,T_TYPEDEF,T_STRUCT,//定义结构相关类型
     T_BIT_AND,T_BIT_OR,T_BIT_XOR,T_LT,T_LE,T_GT,T_GE,T_EQ,T_NEQ,T_AND,T_OR,T_NOT,//表示运算符
-	T_COLON,T_SEMI,T_POUND,T_LC,T_RC,T_LP,T_RP,T_COMMA,T_SEMI,T_COLON,	   //表示各种分隔符#{}();:<>\\''"%&
+	T_COLON,T_SEMI,T_POUND,T_LC,T_RC,T_LP,T_RP,T_COMMA,	   //表示各种分隔符#{}();:<>\\''"%&
 	T_ASSIGN,T_PLUS,T_MINUS,T_MUL,T_DIV,T_MOD,//如果需要支持，可以再往里加
 	T_INCLUDE,T_DEFINE,//表示一些头文件和一些固定值的定义,include,define
 	T_LITERAL,//表示两个双引号中间的任意内容
@@ -27,6 +32,8 @@ typedef enum  _TokenType {
 	T_DONE,
     T_DOLLAR//还有$号未定义,璧如$proto这该如何表示
 }TokenType;
+
+extern const char *token_strings[];
 
 typedef struct _Token
 {
@@ -89,3 +96,6 @@ int scanner_get_curr_line(scanner_rc_t *rc);
 
 void scanner_debug(scanner_rc_t *rc);
 
+
+
+#endif

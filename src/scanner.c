@@ -2,12 +2,34 @@
  * C-- 设计，一个C语言的子集脚本，实现C语言的基本简单的功能
  * created by bingxuefenggu@126.com
  */
-#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include "scanner.h"
 #include <ctype.h>
 
+const char *token_strings[] = { 
+    "T_GLOBAL",
+    "T_ID", //表示字母开始的数字或字符串，可用来表示函数名，常量等                                                                           
+    "T_NUMBER", //表示任何数字常量                                                                                                           
+    "T_IF","T_ELSE","T_ENDIF",//表示if else,endif                                                                                                
+    "T_FOR","T_WHILE","T_SWITCH","T_CASE","T_BREAK","T_CONTINUE","T_GOTO","T_DO",//表示switch                                                              
+    "T_UNSIGNED",     //表示字符类型相关 unsigned 可以定义无符号数。                                                                         
+    "T_ENUM","T_TYPEDEF","T_STRUCT",//定义结构相关类型                                                                                           
+    "T_BIT_AND","T_BIT_OR","T_BIT_XOR","T_LT","T_LE","T_GT","T_GE","T_EQ","T_NEQ","T_AND","T_OR","T_NOT",//表示运算符                                              
+    "T_COLON","T_SEMI","T_POUND","T_LC","T_RC","T_LP","T_RP","T_COMMA",    //表示各种分隔符#{}();:<>\\''"%&                                                
+    "T_ASSIGN","T_PLUS","T_MINUS","T_MUL","T_DIV","T_MOD",//如果需要支持，可以再往里加                                                                 
+    "T_INCLUDE","T_DEFINE",//表示一些头文件和一些固定值的定义,include,define                                                                   
+    "T_LITERAL",//表示两个双引号中间的任意内容                                                                                               
+    "T_ERROR",//表示出错时的类型                                                                                                             
+    //下面是C--扩展中固有的一些关键字                                                                                                      
+    "T_STATE",//表示状态                                                                                                                     
+    "T_CTS", //表示从客户端到服务器端                                                                                                        
+    "T_STC", //表示从服务器端到客户端                                                                                                        
+    "T_START","T_END",//表示状态开始，状态结束                                                                                                 
+    "T_REGEX",//正则串                                                                                                                       
+    "T_DONE",
+    "T_DOLLAR"//还有$号未定义,璧如$proto这该如何表示 
+};
 
 
 //先暂定下述关键字，如果有需要，再加

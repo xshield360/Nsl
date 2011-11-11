@@ -1,6 +1,6 @@
 TARGET=../bin/nsl
-CPPFLAGS= g++  -ggdb -Wall
+CPPFLAGS= gcc  -ggdb -Wall -std=c99
 all:
-	$(CPPFLAGS) -o $(TARGET) nsl.cpp scanner.cpp parser.cpp node.cpp token.cpp inter.cpp inter.cpp symbol.cpp
+	$(CPPFLAGS) -o $(TARGET) nsl.c scanner.c parser.c node.c inter.c symbol.c
 clean:
 	rm -f *.o $(TARGET)

@@ -1,3 +1,5 @@
+#ifndef __NSL_PARSER_H__
+#define __NSL_PARSER_H__
 
 /*
 上下文无关文法
@@ -74,6 +76,7 @@ tree_node_t *parser_factor(parser_rc_t *rc);
 tree_node_t *parser_stmt_seq(parser_rc_t *rc);
 tree_node_t *parser_substate(parser_rc_t *rc);
 tree_node_t *parser_state(parser_rc_t *rc);
+tree_node_t *parser_block(parser_rc_t *rc);
+tree_node_t *parser_enum(parser_rc_t *rc);
 
-
-
+#endif
