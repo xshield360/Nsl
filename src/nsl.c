@@ -15,6 +15,6 @@ int  main(int argc, char **argv)
 	}
 	parser_rc_t parser;
 	parser_init(&parser,argv[1]);
-	tree_node_t *tree = parser_parse(&parser);
+	tree_node_t *tree = parser_program(&parser);
 	gentoc(tree,argv[2]);
 }

@@ -33,7 +33,10 @@ int gentoc(tree_node_t *tree, char *filename)
 		return 0;
 	}
 	fp = fopen(filename, "wb");
-	
+	if (fp == NULL) {
+		printf("file open error, the file may be not exist\n");
+		return 0;
+	}
 	//write the banner to the file
 	//write_banner(fp);
 	//traversal the tree, then gen the c code to the file

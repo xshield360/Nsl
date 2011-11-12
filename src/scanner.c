@@ -23,7 +23,8 @@ const char *token_strings[] = {
     "T_ERROR",//表示出错时的类型                                                                                                             
     //下面是C--扩展中固有的一些关键字                                                                                                      
     "T_STATE",//表示状态                                                                                                                     
-    "T_CTS", //表示从客户端到服务器端                                                                                                        
+   	"T_SUB",
+	"T_CTS", //表示从客户端到服务器端                                                                                                        
     "T_STC", //表示从服务器端到客户端                                                                                                        
     "T_START","T_END",//表示状态开始，状态结束                                                                                                 
     "T_REGEX",//正则串                                                                                                                       
@@ -71,6 +72,7 @@ int scanner_open_file(scanner_rc_t *rc, const char *filename)
 	
 	FILE *fp = fopen(filename,"rb");
 	if (fp == NULL) {
+		printf("file open error");
 		return -1;
 	}
 	fseek(fp,0L,SEEK_END);
@@ -107,17 +109,28 @@ TokenType scanner_get_one_char_token(scanner_rc_t *rc,char c)
 {
 	//现在是判断:号的时候
 	switch(c) {
-
-		case ':': return T_COLON; //
-		case ';': return T_SEMI; //
-		case '#': return T_POUND;//
-		case '{': return T_LC;//
-		case '}': return T_RC;//
-		case '(': return T_LP;
-		case ')': return T_RP;
-		case ',': return T_COMMA;
-		case '$': return T_DOLLAR;
-		case '\0': return T_DONE;
+		case ':': 
+			return T_COLON; //
+		case ';': 
+			return T_SEMI; //
+		case '#': 
+			return T_POUND;//
+		case '{': 
+			return T_LC;//
+		case '}': 
+			return T_RC;//
+		case '(': 
+			return T_LP;
+		case ')': 
+			return T_RP;
+		case ',': 
+			return T_COMMA;
+		case '$': 
+			return T_DOLLAR;
+	    case '\0': 
+			return T_DONE;
+ 	    case '/': 
+			return T_DIV;
 		//case '*': return ; 这个可能是乘号，也可能是指针。
 
 		default:
@@ -143,6 +156,47 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 		++rc->index;
 		c = rc->input[rc->index];
 	}
+	//jmp the comment
+	if (c == '/'){
+		++ rc->index;
+		c = rc->input[rc->index];
+		if (c == '/'){
+			for (int i = rc->index; i < rc->length; ++i)
+			{
+				if (rc->input[i] == '\n' || rc->input[i] == 0)
+				{
+					++ rc->index;
+					++ rc->linecount;
+					break;
+				} else {
+					++rc->index;
+				}
+			}
+		} else if (c == '*') {
+			while(rc->index < rc->length)
+			{
+				if (rc->input[rc->index] == '/' && rc->input[rc->index-1] == '*') {
+					++rc->index;
+					break;
+				}
+				if (rc->input[rc->index] == '\n'){
+					++ rc->linecount;
+				}
+				++rc->index;
+			}
+		} else {
+			-- rc->index; //the div flag
+		}
+		c = rc->input[rc->index];
+	}
+	
+	//delete the space again 
+	while(c == ' ' || c == '\t' || c == '\r' || c == '\n')
+	{
+		if (c == '\n') ++rc->linecount;
+		++rc->index;
+		c = rc->input[rc->index];
+	}
 
 	//判断是否为字母还是数字还是别的内容
 	if (isalpha(c)){
@@ -158,10 +212,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 	{
 		state = ST_STRING;
 		buf[bufindex++] = c;
-		token.t = T_LITERAL;
-	} else if (c == '/'){
-		state = ST_COMMENT; //我们认为是评论的开始
-		buf[bufindex++] = c;	
+		token.t = T_LITERAL;	
 	} else if (c == '=')
 	{
 		state = ST_EQ; //也有可能是复制。
@@ -235,6 +286,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 							++rc->index; //否则继续找下一个
 						}
 					}
+					token.t = T_COMMENT;//注释
 				} else if (c == '*')
 				{
 					// /* */类似这种comment
@@ -250,6 +302,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 						}
 						++rc->index;
 					}
+				    token.t = T_COMMENT; //
 
 				} else {
 					// 有可能是div符号这里

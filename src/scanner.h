@@ -25,12 +25,14 @@ typedef enum  _TokenType {
 	T_ERROR,//表示出错时的类型
 	//下面是C--扩展中固有的一些关键字
 	T_STATE,//表示状态
+	T_SUB,
 	T_CTS, //表示从客户端到服务器端
 	T_STC, //表示从服务器端到客户端
 	T_START,T_END,//表示状态开始，状态结束
 	T_REGEX,//正则串
 	T_DONE,
-    T_DOLLAR//还有$号未定义,璧如$proto这该如何表示
+    T_DOLLAR,//还有$号未定义,璧如$proto这该如何表示
+	T_COMMENT//取得注释
 }TokenType;
 
 extern const char *token_strings[];

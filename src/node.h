@@ -11,6 +11,7 @@ typedef enum{
 	NodeType_Stmt, //
 	NodeType_Exp //表达式类型
 }node_type_t;
+
 //定义头部的几种类型
 typedef enum{
 	HeaderType_Include = 1,
@@ -59,5 +60,6 @@ tree_node_t *new_exp_node(exp_type_t type);
 tree_node_t *new_stmt_node(stmt_type_t type);
 tree_node_t *new_state_node();
 tree_node_t *new_include_node();
-
+tree_node_t *new_sub_node();
+tree_node_t *new_header_node();
 #endif
