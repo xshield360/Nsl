@@ -14,7 +14,10 @@ int  main(int argc, char **argv)
 		exit(-1);
 	}
 	parser_rc_t parser;
+	symbol_t *symbol;
 	parser_init(&parser,argv[1]);
+
 	tree_node_t *tree = parser_program(&parser);
-	gentoc(tree,argv[2]);
+	symbol = parser.symbol;
+	gentoc(symbol,tree,argv[2]);
 }

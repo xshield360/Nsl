@@ -30,34 +30,48 @@ tree_node_t *parser_program(parser_rc_t *rc)
 {
 	//we get the token to check the state.
 	tree_node_t *tree = NULL;
+	tree_node_t *p = NULL;
+	tree_node_t *q = NULL;
+
 	if (rc == NULL) 
 	{
 		//
 		printf("rc is null \n");
 		return tree;
 	}
-	rc->token = scanner_get_next_token(rc->scanner_rc);
 	
-	if (rc->token.t == T_POUND)
-	{
-		//the headers
-		tree = parser_header(rc);
-	} else if (rc->token.t == T_SUB)
-	{
-		//the sub 
-		tree = parser_sub(rc);
-	} else if (rc->token.t == T_STATE)
-	{
-		//the state
-		tree = parser_state(rc);
-	} else if (rc->token.t == T_UNSIGNED)
-	{
-		tree = parser_decls(rc);
-	} else if (rc->token.t == T_ENUM)
-	{
-		tree = parser_enum(rc);
-	} else {
-		parser_syntax_error(rc,"code error in the parogram");
+	while(1) {
+		rc->token = scanner_get_next_token(rc->scanner_rc);
+		TokenType t = rc->token.t;
+
+		printf("%s\n",rc->token.c);
+		printf("%s\n",token_get_name(rc->token.t));
+		if (t == T_POUND) {
+			//the headers
+			p = parser_header(rc);
+		} else if (t == T_SUB){
+			//the sub 
+			p = parser_sub(rc);
+		} else if (t == T_STATE){
+			//the state
+			p = parser_state(rc);
+		} else if (t == T_UNSIGNED){
+			p = parser_decls(rc);
+		} else if (t == T_ENUM){
+			p = parser_enum(rc);
+		} else if (t == T_DONE){
+			break;
+		} else {
+			parser_syntax_error(rc,"code error in the parogram");
+	    }
+		// add the node to the tree
+		if (tree != NULL) {
+			q = tree;
+			while(q->sibling != NULL) q = q->sibling;
+			q->sibling = p;
+		} else {
+			tree = p;
+		}
 	}
 	return tree;
 }
@@ -154,9 +168,18 @@ tree_node_t *parser_define(parser_rc_t *rc){
 }
 tree_node_t *parser_include(parser_rc_t *rc){
 	tree_node_t *t = new_header_node(HeaderType_Include);
+
 	parser_match(rc,T_INCLUDE);
 	//write the symbol into the symbol table;
-	
+	printf("%s\n",rc->token.c);
+	printf("%s\n",token_get_name(rc->token.t));
+	if (t!=NULL && rc->token.t == T_LITERAL)
+	{
+		//copy the string to the symbol table.
+		//
+		t->attr = hash(rc->token.c);
+		IncludeList_insert(rc->symbol,rc->token.c);
+	}
 	return t;
 }
 tree_node_t *parser_enum(parser_rc_t *rc){

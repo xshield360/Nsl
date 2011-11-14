@@ -1,23 +1,47 @@
 #include "inter.h"
 
-/*
+
 void write_banner(FILE *fp)
 {
-	printf("/*****************************************************\n");
-	printf("*    created by nsl                                  *\n");
-	printf("*                                                    *\n");
-	printf("******************************************************\n\n\n");
+	fprintf(fp,"/*****************************************************\n");
+	fprintf(fp,"*    created by nsl                                  *\n");
+	fprintf(fp,"*                                                    *\n");
+	fprintf(fp,"******************************************************\n\n\n");
 }
-*/
-/*
-int traversal_tree(tree_node_t *tree,FILE *fp)
+
+
+int traversal_tree(symbol_t *symbol,tree_node_t *tree,FILE *fp)
 {
-	//
-	printf("helloworld\n");
+   
+	if (tree == NULL)
+	{
+		fprintf(fp,"Error in traversal_tree,There is no AST\n");
+		return 0;
+	}
+	tree_node_t *p;
+	p = tree;
+
+	if (p->node_type == NodeType_Header)
+	{
+		//the header about 
+		if (p->type.header == HeaderType_Include)
+		{
+			//do the include
+			int h = p->attr;
+			fprintf(fp,"#include \"%s\"\n",symbol->IncludeListHash[h]->name);
+		}
+	}
+
+	if(p->sibling != NULL){
+		p = p->sibling;
+		traversal_tree(symbol,p,fp);
+	} else {
+		fprintf(fp,"//end");
+	}
 	return 1;
 }
-*/
-int gentoc(tree_node_t *tree, char *filename)
+
+int gentoc(symbol_t *symbol,tree_node_t *tree, char *filename)
 {
 	// the banner
 	// parser the tree ,then gen it into c code.
@@ -38,9 +62,9 @@ int gentoc(tree_node_t *tree, char *filename)
 		return 0;
 	}
 	//write the banner to the file
-	//write_banner(fp);
+	write_banner(fp);
 	//traversal the tree, then gen the c code to the file
-	//traversal_tree(tree,fp);
+	traversal_tree(symbol,tree,fp);
 	fclose(fp);
 	return 1;
 }

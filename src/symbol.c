@@ -1,5 +1,6 @@
 #include "symbol.h"
-
+#include <stdio.h>
+#include <stdlib.h>
 
 int hash(char* key)
 {
@@ -12,35 +13,54 @@ int hash(char* key)
 	}
 	return temp;
 }
-
-void IncludeList_insert(char *name,...)
+void symbol_init(symbol_t *symbol)
 {
-
+	int i;
+	for (i = 0; i < SIZE; i ++) {
+		symbol->IncludeListHash[i] = NULL;
+		symbol->ListHash[i] = NULL;
+		symbol->FunctionListHash[i] = NULL;
+		symbol->StateListHash[i] = NULL;
+	}
 }
-void IncludeList_delete(char *name)
+void IncludeList_insert(symbol_t *symbol,char *name)
+{
+	IncludeList *pname;
+	pname = (IncludeList *)malloc(sizeof(IncludeList));
+	pname->name = name;
+	int h = hash(name);
+	symbol->IncludeListHash[h] = pname;
+}
+void IncludeList_delete(symbol_t *symbol,char *name)
 {
 	int h = hash(name);
-	IncludeListHash[h] = NULL;
+	IncludeList *pname;
+	pname = symbol->IncludeListHash[h];
+	if (pname != NULL) free(pname);
+	symbol->IncludeListHash[h] = NULL;
 }
 
-void IncludeList_find(char *name)
+char *IncludeList_find(symbol_t *symbol,char *name)
 {
 	int h = hash(name);
 	IncludeList *l;
-	l = IncludeListHash[h];
-	return l->memloc;
+	l = symbol->IncludeListHash[h];
+	return l->name;
 }
-
+/*
 void List_insert()
 {
 }
 
 void List_delete()
 {
+	int h = hash(name);
+	ListHash[h] = NULL;
 }
 void List_find()
 {
-
+	List *l;
+	l = 
 }
 
 void FunctionList_insert()
@@ -55,12 +75,19 @@ void FunctionList_find()
 
 void StateList_insert()
 {
+	
 }
 void StateList_delete()
 {
-
+	int h = hash(state_name);
+	StateListHash[h] = NULL;
 }
-void StateList_find()
+void StateList_find(char *state_name)
 {
-
+	int h;
+	h = hash(state_name);
+	StateList *l;
+	l = StateListHash[h];
+	return l->memloc;
 }
+*/

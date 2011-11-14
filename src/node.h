@@ -48,12 +48,7 @@ typedef struct TreeNode
 		header_type_t header;
 		exp_type_t exp;
 	}type;
-	union{
-		TokenType op;
-		int val;
-		char *name;
-		double dval;
-	}attr;
+	int attr;
 	exp_type_t exp_type;
 }tree_node_t;
 tree_node_t *new_exp_node(exp_type_t type);

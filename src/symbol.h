@@ -6,50 +6,51 @@
 
 typedef struct _INCLUDE{
 	char *name;
-	IncludeList *next;
+	//	IncludeList *next;
 }IncludeList,*pIncludeList;
 
 //常量，变量，指针
-typedef struct _LIST{
+typedef struct List{
 	char *name; //名称
 	int type; //类型
 	int scope;//标识符作用域信息
 	int memloc;//内存中的位置
 	int flag; //常量，变量，指针
-	List *next;
+	struct List *next;
 }List,*pList;
 
 //sub function
-typedef struct _FUNCTIONLIST{
+typedef struct FunctionList{
 	char *name;//
 	long memloc; //地址
-	FunctionList *next;//
+	struct FunctionList *next;//
 }FunctionList,*pFunctionList;
 
 //the action in the state 
-typedef struct _ACTIONLIST{
+typedef struct ActionList{
 	char *regex;
-	ActionList *next;
+	struct ActionList *next;
 }ActionList,*pActionList;
 
 //state define
-typedef struct _STATELIST{
+typedef struct StateList{
 	char *name;//
 	ActionList *actionId;
-	StateList *next;
+	struct StateList *next;
 }StateList,*pStateList;
 
-IncludeList IncludeListHash[SIZE];
-List ListHash[SIZE];
-FunctionList FunctionListHash[SIZE];
-StateList StateListHash[SIZE];
-
-
+typedef struct {
+	IncludeList* IncludeListHash[SIZE];
+	List* ListHash[SIZE];
+	FunctionList* FunctionListHash[SIZE];
+	StateList* StateListHash[SIZE];
+}symbol_t;
+void symbol_init(symbol_t *symbol);
 int hash(char* key);
-void IncludeList_insert();
-void IncludeList_delete();
-void IncludeList_find();
-
+void IncludeList_insert(symbol_t *symbol,char *name);
+void IncludeList_delete(symbol_t *symbol,char *name);
+char *IncludeList_find(symbol_t *symbol,char *name);
+/*
 void List_insert();
 void List_delete();
 void List_find();
@@ -61,6 +62,6 @@ void FunctionList_find();
 void StateList_insert();
 void StateList_delete();
 void StateList_find();
-
+*/
 
 #endif

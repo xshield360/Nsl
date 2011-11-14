@@ -208,10 +208,10 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 		state = ST_NUMBER;
 		buf[bufindex++] = c;
 		token.t = T_NUMBER;
-	} else if (c == '\'' || c == '"')
+	} else if (c == '"')
 	{
 		state = ST_STRING;
-		buf[bufindex++] = c;
+		//buf[bufindex++] = c;
 		token.t = T_LITERAL;	
 	} else if (c == '=')
 	{
@@ -245,6 +245,16 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 				else {
 					state = ST_DONE;
 					-- rc->index;
+				}
+				break;
+			case ST_STRING:
+				//the things between ' ""
+				if (c == '\"')
+				{
+					state = ST_DONE;
+					++ rc->index;
+				} else {
+					buf[bufindex++] = c;
 				}
 				break;
 			case ST_NUMBER:
@@ -333,7 +343,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 				copy = 1;
 			}
 		}
-		if (copy == 1 && (token.t == T_ID || token.t == T_UNSIGNED || token.t == T_NUMBER))
+		if (copy == 1 && (token.t == T_ID || token.t == T_UNSIGNED || token.t == T_NUMBER ||token.t == T_LITERAL))
 		{
 			token.c = (char *)malloc(bufindex+1);
 			memset(token.c,0,bufindex +1);
