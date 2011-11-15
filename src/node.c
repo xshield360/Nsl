@@ -9,7 +9,12 @@ tree_node_t *new_exp_node(exp_type_t type)
 }
 tree_node_t *new_stmt_node(stmt_type_t type)
 {
-
+	tree_node_t *t = (tree_node_t *)malloc(sizeof(tree_node_t)+1);
+	for (int i =0; i < MAXCHILDREN; ++i)
+		t->childs[i] = NULL;
+	t->sibling = NULL;
+	t->node_type = NodeType_Stmt;
+	t->type.stmt = StmtType_Decl;
 }
 //state node, 就一种类型
 tree_node_t *new_state_node()

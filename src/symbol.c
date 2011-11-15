@@ -19,6 +19,7 @@ void symbol_init(symbol_t *symbol)
 	for (i = 0; i < SIZE; i ++) {
 		symbol->IncludeListHash[i] = NULL;
 		symbol->ListHash[i] = NULL;
+		symbol->DeclListHash[i] = NULL;
 		symbol->FunctionListHash[i] = NULL;
 		symbol->StateListHash[i] = NULL;
 	}
@@ -46,6 +47,29 @@ char *IncludeList_find(symbol_t *symbol,char *name)
 	IncludeList *l;
 	l = symbol->IncludeListHash[h];
 	return l->name;
+}
+void DeclList_insert(symbol_t *symbol,char *name,int type)
+{
+	DeclList *plist;
+	plist = (DeclList *)malloc(sizeof(DeclList));
+	plist->name = name;
+	plist->type = type;
+	int h = hash(name);
+	symbol->DeclListHash[h] = plist; 
+}
+void DeclList_delete(symbol_t *symbol,char *name)
+{
+	int h = hash(name);
+	DeclList *plist;
+	plist = symbol->DeclListHash[h];
+	if (plist != NULL) free(plist);
+	symbol->DeclListHash[h] = NULL;
+}
+void DeclList_find(symbol_t *symbol,char *name,DeclList *list)
+{
+	int h = hash(name);
+	DeclList *plist = symbol->DeclListHash[h];
+	list = plist;
 }
 /*
 void List_insert()

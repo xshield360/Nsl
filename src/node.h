@@ -26,7 +26,7 @@ typedef enum{
 	StmtType_While,
 	StmtType_For,
 	StmtType_Assign,
-	StmtType_Decls,
+	StmtType_Decl,
 	StmtType_Do,
 }stmt_type_t;
 

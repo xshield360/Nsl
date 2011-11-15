@@ -148,7 +148,6 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 	char c = rc->input[rc->index];
 	char buf[TOKEN_SIZE_MAX] = {0};
 	int bufindex = 0;
-
 	//delete the space 
 	while(c == ' ' || c == '\t' || c == '\r' || c == '\n')
 	{
@@ -197,7 +196,6 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 		++rc->index;
 		c = rc->input[rc->index];
 	}
-
 	//判断是否为字母还是数字还是别的内容
 	if (isalpha(c)){
 		state = ST_ID;
@@ -238,7 +236,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 		c = rc->input[rc->index];
 		switch(state) {
 			case ST_ID:
-				if (isalpha(c) || c == '_')
+				if (isalpha(c) || c == '_' || isdigit(c))
 				{
 					buf[bufindex++] = c;
 				} 
@@ -340,7 +338,7 @@ Token scanner_get_next_token(scanner_rc_t *rc)
 			token.t = lookup_reserved_keyword(buf);
 			if (token.t != T_ID)
 			{
-				copy = 1;
+				copy = 0;
 			}
 		}
 		if (copy == 1 && (token.t == T_ID || token.t == T_UNSIGNED || token.t == T_NUMBER ||token.t == T_LITERAL))

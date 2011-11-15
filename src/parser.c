@@ -43,9 +43,6 @@ tree_node_t *parser_program(parser_rc_t *rc)
 	while(1) {
 		rc->token = scanner_get_next_token(rc->scanner_rc);
 		TokenType t = rc->token.t;
-
-		printf("%s\n",rc->token.c);
-		printf("%s\n",token_get_name(rc->token.t));
 		if (t == T_POUND) {
 			//the headers
 			p = parser_header(rc);
@@ -56,7 +53,7 @@ tree_node_t *parser_program(parser_rc_t *rc)
 			//the state
 			p = parser_state(rc);
 		} else if (t == T_UNSIGNED){
-			p = parser_decls(rc);
+			p = parser_decl(rc);
 		} else if (t == T_ENUM){
 			p = parser_enum(rc);
 		} else if (t == T_DONE){
@@ -147,7 +144,36 @@ tree_node_t *parser_decls(parser_rc_t *rc){
  * to parser decl
  */
 tree_node_t *parser_decl(parser_rc_t *rc){
-	//
+	//unsigned ...:number;
+	tree_node_t *t = new_stmt_node(StmtType_Decl);
+	char *name;
+	int type;
+	parser_match(rc,T_UNSIGNED);
+	if (t!=NULL && rc->token.t == T_ID)
+	{                                                                                                         
+		name = rc->token.c;
+		t->attr = hash(rc->token.c);
+		//IncludeList_insert(rc->symbol,rc->token.c);
+		parser_match(rc,T_ID);
+		parser_match(rc,T_COLON);
+		if (t!= NULL && rc->token.t == T_NUMBER)
+		{
+			type = atoi(rc->token.c);
+			t->attr = hash(name);
+			DeclList_insert(rc->symbol,name,type);
+			parser_match(rc,T_NUMBER);
+			//parser_match(rc,T_SEMI);
+			if (rc->token.t != T_SEMI)
+			{
+				parser_syntax_error(rc,"Error in parser_decl,the end must be semi\n");
+			}
+		} else {
+			parser_syntax_error(rc,"Error in the parser_decl,the number must be 8,16,32\n");
+		}
+	} else {
+		parser_syntax_error(rc,"Error in the parser_decl");
+	}
+	return t;
 }
 
 tree_node_t *parser_state_block(parser_rc_t *rc){}
@@ -171,8 +197,6 @@ tree_node_t *parser_include(parser_rc_t *rc){
 
 	parser_match(rc,T_INCLUDE);
 	//write the symbol into the symbol table;
-	printf("%s\n",rc->token.c);
-	printf("%s\n",token_get_name(rc->token.t));
 	if (t!=NULL && rc->token.t == T_LITERAL)
 	{
 		//copy the string to the symbol table.
@@ -184,7 +208,20 @@ tree_node_t *parser_include(parser_rc_t *rc){
 }
 tree_node_t *parser_enum(parser_rc_t *rc){
 	tree_node_t *t = NULL;
+	tree_node_t *t = new_header_node(HeaderType_Enum);
+	parser_match(rc,T_ENUM);
+	parser_match(rc,T_LC);
+	//check if the next word is a T_ID
+	//
+	if (rc->token.t == T_RC) parser_match(rc,T_RC);
+	
+	if (rc->token.t != T_SEMI)
+	{
+		parser_syntax_error(rc,"Error in parser_enum\n");
+	}
+		
 	return t;
+	
 }
 
 tree_node_t *parser_stmts(parser_rc_t *rc){

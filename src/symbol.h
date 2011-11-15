@@ -9,6 +9,17 @@ typedef struct _INCLUDE{
 	//	IncludeList *next;
 }IncludeList,*pIncludeList;
 
+typedef struct _DECL{
+	char *name;
+	int type;//8,16,32
+}DeclList,*pDeclList;
+
+typedef struct EnumList{
+	char *name;
+	int type; // type = 1,the enum name,type=2,the members.
+	EnumList *next; 
+}EnumList,*pEnumList;
+
 //常量，变量，指针
 typedef struct List{
 	char *name; //名称
@@ -42,6 +53,8 @@ typedef struct StateList{
 typedef struct {
 	IncludeList* IncludeListHash[SIZE];
 	List* ListHash[SIZE];
+	EnumList *EnumListHash[SIZE];
+	DeclList *DeclListHash[SIZE];
 	FunctionList* FunctionListHash[SIZE];
 	StateList* StateListHash[SIZE];
 }symbol_t;
@@ -50,6 +63,16 @@ int hash(char* key);
 void IncludeList_insert(symbol_t *symbol,char *name);
 void IncludeList_delete(symbol_t *symbol,char *name);
 char *IncludeList_find(symbol_t *symbol,char *name);
+
+void DeclList_insert(symbol_t *symbol,char *name,int type);
+void DeclList_delete(symbol_t *symbol,char *name);
+void DeclList_find(symbol_t *symbol,char *name, DeclList *list);
+
+void EnumList_insert(symbol_t *symbol,char *name,int type);
+void EnumList_delete(symbol_t *symbol,char *name);
+void EnumList_find(symbol_t *symbol,char *name,EnumList *list);
+
+
 /*
 void List_insert();
 void List_delete();

@@ -20,15 +20,41 @@ int traversal_tree(symbol_t *symbol,tree_node_t *tree,FILE *fp)
 	}
 	tree_node_t *p;
 	p = tree;
-
+	
 	if (p->node_type == NodeType_Header)
 	{
 		//the header about 
 		if (p->type.header == HeaderType_Include)
 		{
+			
 			//do the include
 			int h = p->attr;
 			fprintf(fp,"#include \"%s\"\n",symbol->IncludeListHash[h]->name);
+			//printf("#include \"%s\"\n",symbol->IncludeListHash[h]->name);
+		}
+	} else if (p->node_type == NodeType_Stmt)
+	{
+		//the decl
+		if (p->type.stmt == StmtType_Decl)
+		{
+			int h = p->attr;
+			int type;
+			char *name;
+			type = symbol->DeclListHash[h]->type;
+			name = symbol->DeclListHash[h]->name;
+			fprintf(fp,"unsigned ");
+			if (type == 8){
+				fprintf(fp,"char ");
+			} else if (type == 16)
+			{
+				fprintf(fp,"short ");
+			} else if (type == 32){
+					fprintf(fp,"int ");
+			} else {
+				printf("Wrong in gentoc,number must be 8,16,32\n");
+				exit(0);
+			}
+			fprintf(fp,"%s;\n",name);
 		}
 	}
 
@@ -36,7 +62,7 @@ int traversal_tree(symbol_t *symbol,tree_node_t *tree,FILE *fp)
 		p = p->sibling;
 		traversal_tree(symbol,p,fp);
 	} else {
-		fprintf(fp,"//end");
+		fprintf(fp,"//end\n");
 	}
 	return 1;
 }
