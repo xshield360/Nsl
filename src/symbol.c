@@ -19,6 +19,7 @@ void symbol_init(symbol_t *symbol)
 	for (i = 0; i < SIZE; i ++) {
 		symbol->IncludeListHash[i] = NULL;
 		symbol->ListHash[i] = NULL;
+		symbol->EnumListHash[i] = NULL;
 		symbol->DeclListHash[i] = NULL;
 		symbol->FunctionListHash[i] = NULL;
 		symbol->StateListHash[i] = NULL;
@@ -71,6 +72,55 @@ void DeclList_find(symbol_t *symbol,char *name,DeclList *list)
 	DeclList *plist = symbol->DeclListHash[h];
 	list = plist;
 }
+
+void EnumListHash_insert(symbol_t *symbol,char *name,int value,int type)
+{
+	EnumList *plist;
+	plist = (EnumList *)malloc(sizeof(EnumList));
+	plist->name = name;
+	plist->value = value;
+	plist->type = type;
+	plist->next = NULL;
+	int h = hash(name);
+	symbol->EnumListHash[h] = plist;
+}
+void EnumListHash_delete(symbol_t *symbol,char *name)
+{
+	int h = hash(name);
+	EnumList *plist;
+	EnumList *p,*q;
+	plist = symbol->EnumListHash[h];
+	q = p = plist;
+	while(p != NULL)
+	{
+		q = p->next;
+		free(p);
+		p = q->next;
+	}
+	//if (plist != NULL) free(plist);
+	symbol->EnumListHash[h] = NULL;
+}
+void EnumListHash_find(symbol_t *symbol,char *name,EnumList *list)
+{
+	int h = hash(name);
+	EnumList *plist;
+	plist = symbol->EnumListHash[h];
+	list = plist;
+}
+
+void EnumList_add(EnumList *list,char *name,int value,int type) //add the list node to the end of list.
+{
+	EnumList *plist;
+	EnumList *p;
+	plist = (EnumList *)malloc(sizeof(EnumList));
+	plist->name;
+	plist->type;
+	plist->next = NULL;
+	p = list;
+	while(p->next!=NULL)p = p->next;
+	p->next = list;
+}
+
 /*
 void List_insert()
 {

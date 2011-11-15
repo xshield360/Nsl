@@ -16,8 +16,9 @@ typedef struct _DECL{
 
 typedef struct EnumList{
 	char *name;
+	int value;
 	int type; // type = 1,the enum name,type=2,the members.
-	EnumList *next; 
+	struct EnumList *next; 
 }EnumList,*pEnumList;
 
 //常量，变量，指针
@@ -68,9 +69,11 @@ void DeclList_insert(symbol_t *symbol,char *name,int type);
 void DeclList_delete(symbol_t *symbol,char *name);
 void DeclList_find(symbol_t *symbol,char *name, DeclList *list);
 
-void EnumList_insert(symbol_t *symbol,char *name,int type);
-void EnumList_delete(symbol_t *symbol,char *name);
-void EnumList_find(symbol_t *symbol,char *name,EnumList *list);
+void EnumListHash_insert(symbol_t *symbol,char *name,int value,int type);
+void EnumListHash_delete(symbol_t *symbol,char *name);
+void EnumListHash_find(symbol_t *symbol,char *name,EnumList *list);
+
+void EnumList_add(EnumList *list,char *name,int value,int type); //add the list node to the end of list.
 
 
 /*

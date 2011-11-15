@@ -207,11 +207,81 @@ tree_node_t *parser_include(parser_rc_t *rc){
 	return t;
 }
 tree_node_t *parser_enum(parser_rc_t *rc){
-	tree_node_t *t = NULL;
 	tree_node_t *t = new_header_node(HeaderType_Enum);
 	parser_match(rc,T_ENUM);
+	int h = 0;
+	int last_value =0,now_value = 0;
+	if (rc->token.t == T_ID)
+	{
+		//it may be the enum name
+		int h = hash(rc->token.c);
+		t->attr = h;
+		EnumListHash_insert(rc->symbol,rc->token.c,0,1);
+		//we insert the name into enum hash.
+		parser_match(rc,T_ID);
+	}
 	parser_match(rc,T_LC);
-	//check if the next word is a T_ID
+	//check if the next word{a,b,c}
+	while(1)
+	{
+		if (rc->token.t == T_ID)
+		{
+			//add a into the symbol table
+			//There is no name
+			if (h == 0)
+			{
+				//we insert a=0,into the table.
+				h = hash(rc->token.c);
+				t->attr = h;
+				parser_match(rc,T_ID);
+				if (rc->token.t == T_ASSIGN) {
+					parser_match(rc,T_ASSIGN);
+					if (rc->token.t == T_NUMBER) {
+						now_value = atoi(rc->token.c);
+						last_value = now_value;
+					} else {
+						printf("error\n");
+					}
+				} else if (rc->token.t == T_COMMA)
+				{
+					now_value = last_value = 0;
+				}
+				EnumListHash_insert(rc->symbol,rc->token.c,now_value,2); //type=2,
+			} else {
+				//add the values to 
+				char *name = rc->token.c;
+				parser_match(rc,T_ID);
+				if (rc->token.t == T_ASSIGN)
+				{
+					parser_match(rc,T_ASSIGN);
+					if (rc->token.t == T_NUMBER)
+					{
+						last_value = now_value;
+						now_value = atoi(rc->token.c);
+					} else {
+						printf("error\n");
+					}
+				} else if (rc->token.t == T_COMMA)
+				{
+					now_value = last_value + 1;
+					last_value = now_value;
+				}
+				EnumList * list;
+				list = rc->symbol->EnumListHash[h];
+				EnumList_add(list,rc->token.c,now_value,2);
+			}
+			
+			if (rc->token.t == T_COMMA)
+			{	
+				parser_match(rc,T_COMMA);
+			}
+		} else if (rc->token.t == T_RC){
+			break;
+		} else {
+			printf("Error in the parser_enum,wrong struct\n");
+			break;
+		}
+	}
 	//
 	if (rc->token.t == T_RC) parser_match(rc,T_RC);
 	
