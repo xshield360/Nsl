@@ -32,6 +32,33 @@ int traversal_tree(symbol_t *symbol,tree_node_t *tree,FILE *fp)
 			fprintf(fp,"#include \"%s\"\n",symbol->IncludeListHash[h]->name);
 			//printf("#include \"%s\"\n",symbol->IncludeListHash[h]->name);
 		}
+		else if (p->type.header == HeaderType_Enum)
+		{
+			int h = p->attr;
+			EnumList *plist;
+			EnumList *p;
+			printf("%d\n",h);
+			plist = symbol->EnumListHash[h];
+			if (plist == NULL)
+			{
+				printf("error the symbol is none\n");
+			} else {
+				p = plist;
+			
+				if (plist->type == 1){
+					fprintf(fp,"\nenum %s {\n",plist->name);
+					p = plist->next;
+				} else if (plist->type == 2){
+					fprintf(fp,"\nenum {\n");
+				}
+				while(p!=NULL)
+				{
+					fprintf(fp,"    %s = %d,\n",p->name,p->value);
+					p = p->next;
+				}
+				fprintf(fp,"};");
+			}
+		}
 	} else if (p->node_type == NodeType_Stmt)
 	{
 		//the decl
@@ -62,7 +89,7 @@ int traversal_tree(symbol_t *symbol,tree_node_t *tree,FILE *fp)
 		p = p->sibling;
 		traversal_tree(symbol,p,fp);
 	} else {
-		fprintf(fp,"//end\n");
+		fprintf(fp,"\n\n//end\n");
 	}
 	return 1;
 }

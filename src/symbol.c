@@ -4,6 +4,11 @@
 
 int hash(char* key)
 {
+	if (key == NULL)
+	{
+		printf("key is Null\n");
+		return 0;
+	}
 	int temp = 0;
 	int i =0;
 	while(key[i] != '\0')
@@ -112,13 +117,32 @@ void EnumList_add(EnumList *list,char *name,int value,int type) //add the list n
 {
 	EnumList *plist;
 	EnumList *p;
+	
 	plist = (EnumList *)malloc(sizeof(EnumList));
-	plist->name;
-	plist->type;
+	if (plist == NULL)
+	{
+		printf("malloc error\n");
+		exit(0);
+	}
+	plist->name = name;
+	plist->value = value;
+	plist->type = type;
 	plist->next = NULL;
+	
+	if (list == NULL)
+	{
+		list = plist;
+	} else {
+		p = list;
+		while(p->next!=NULL) p = p ->next;
+		p->next = plist;
+	}
 	p = list;
-	while(p->next!=NULL)p = p->next;
-	p->next = list;
+	while(p!=NULL)
+	{
+		printf("name %s,value %d,type %d\n",p->name,p->value,p->type);
+		p = p->next;
+	}
 }
 
 /*

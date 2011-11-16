@@ -210,12 +210,14 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 	tree_node_t *t = new_header_node(HeaderType_Enum);
 	parser_match(rc,T_ENUM);
 	int h = 0;
+	char *name;
 	int last_value =0,now_value = 0;
 	if (rc->token.t == T_ID)
 	{
 		//it may be the enum name
-		int h = hash(rc->token.c);
+		h = hash(rc->token.c);
 		t->attr = h;
+		printf("hash value is %d\n",h);
 		EnumListHash_insert(rc->symbol,rc->token.c,0,1);
 		//we insert the name into enum hash.
 		parser_match(rc,T_ID);
@@ -228,17 +230,22 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 		{
 			//add a into the symbol table
 			//There is no name
+			
+			printf("aaaaaa hash value is %d\n",h);
 			if (h == 0)
 			{
 				//we insert a=0,into the table.
 				h = hash(rc->token.c);
 				t->attr = h;
+				name = rc->token.c;
+				printf("hash value is %d\n",h);
 				parser_match(rc,T_ID);
 				if (rc->token.t == T_ASSIGN) {
 					parser_match(rc,T_ASSIGN);
 					if (rc->token.t == T_NUMBER) {
 						now_value = atoi(rc->token.c);
 						last_value = now_value;
+						parser_match(rc,T_NUMBER);
 					} else {
 						printf("error\n");
 					}
@@ -246,11 +253,12 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 				{
 					now_value = last_value = 0;
 				}
-				EnumListHash_insert(rc->symbol,rc->token.c,now_value,2); //type=2,
+				EnumListHash_insert(rc->symbol,name,now_value,2); //type=2,
 			} else {
 				//add the values to 
-				char *name = rc->token.c;
+				name = rc->token.c;
 				parser_match(rc,T_ID);
+				printf("name %s\n",name);
 				if (rc->token.t == T_ASSIGN)
 				{
 					parser_match(rc,T_ASSIGN);
@@ -258,6 +266,7 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 					{
 						last_value = now_value;
 						now_value = atoi(rc->token.c);
+						parser_match(rc,T_NUMBER);
 					} else {
 						printf("error\n");
 					}
@@ -268,7 +277,8 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 				}
 				EnumList * list;
 				list = rc->symbol->EnumListHash[h];
-				EnumList_add(list,rc->token.c,now_value,2);
+				printf("name %s now_value %d\n",name,now_value);
+				EnumList_add(list,name,now_value,2);
 			}
 			
 			if (rc->token.t == T_COMMA)
