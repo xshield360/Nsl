@@ -28,6 +28,7 @@ typedef enum{
 	StmtType_Assign,
 	StmtType_Decl,
 	StmtType_Do,
+	StmtType_Block
 }stmt_type_t;
 
 

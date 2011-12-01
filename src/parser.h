@@ -37,6 +37,7 @@ tree_node_t *parser_stmt_exp(parser_rc_t *rc);
 tree_node_t *parser_stmt_if(parser_rc_t *rc);//if () block else block 
 tree_node_t *parser_stmt_do(parser_rc_t *rc);//do block while();
 tree_node_t *parser_stmt_while(parser_rc_t *rc);//while() block
+tree_node_t *parser_stmt_assign(parser_rc_t *rc);// a=b; a=c
 
 void parser_debug(parser_rc_t *rc,tree_node_t * tree);
 void parser_match(parser_rc_t *rc,TokenType expected);

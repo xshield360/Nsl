@@ -6,8 +6,7 @@
  * function name : parser_init
  * we use it to init the parser. 
  */	
-void parser_init(parser_rc_t *rc, const char *file_name)
-{
+void parser_init(parser_rc_t *rc, const char *file_name) {
 	rc->file_name = file_name;
 	scanner_rc_t *scanner = (scanner_rc_t *)malloc(sizeof(scanner_rc_t));
 	
@@ -26,8 +25,7 @@ void parser_init(parser_rc_t *rc, const char *file_name)
  * function name: parser_program
  * use it to parser the program
  */
-tree_node_t *parser_program(parser_rc_t *rc)
-{
+tree_node_t *parser_program(parser_rc_t *rc) {
 	//we get the token to check the state.
 	tree_node_t *tree = NULL;
 	tree_node_t *p = NULL;
@@ -77,8 +75,7 @@ tree_node_t *parser_program(parser_rc_t *rc)
  * function name: parser_sub
  * use it to parser the sub function
  */
-tree_node_t *parser_sub(parser_rc_t *rc)
-{
+tree_node_t *parser_sub(parser_rc_t *rc) {
 	//to create a sub node
 	tree_node_t *t = new_sub_node();
 	parser_match(rc,T_SUB);
@@ -89,9 +86,9 @@ tree_node_t *parser_sub(parser_rc_t *rc)
 	{
 		//we get the value then insert into the symbol table.
 		//the code about push the value into the symbol table
+		parser_match(rc,T_ID);
+		t->childs[0] = parser_block(rc); //parser the block about the sub
 	}
-	
-	t->childs[0] = parser_block(rc); //parser the block about the sub
 	return t;
 }
 
@@ -99,16 +96,17 @@ tree_node_t *parser_sub(parser_rc_t *rc)
  * function name: parser_state
  * use it to parser the state block
  */
-tree_node_t *parser_state(parser_rc_t *rc)
-{
+tree_node_t *parser_state(parser_rc_t *rc) {
 	tree_node_t *t = new_state_node();
 	parser_match(rc,T_STATE);
 	//we then need push the ID into the symbol table
 	if (t!= 0 && rc->token.t == T_ID)
 	{
 		//the code about push the ID value into the symbol table.
+		parser_match(rc,T_ID);
+		t->childs[0] = parser_block(rc);
+		return t;
 	}
-	t->childs[0] = parser_state_block(rc);
 	return t;
 }
 
@@ -116,8 +114,7 @@ tree_node_t *parser_state(parser_rc_t *rc)
  * function name: parser_header
  * to parser the header about the program
  */
-tree_node_t *parser_header(parser_rc_t *rc)
-{
+tree_node_t *parser_header(parser_rc_t *rc) {
 	tree_node_t *t = NULL;
 	parser_match(rc,T_POUND);
 	//we check if it is the define or the include.
@@ -126,16 +123,18 @@ tree_node_t *parser_header(parser_rc_t *rc)
 		t = parser_define(rc);
 	} else if (rc->token.t == T_INCLUDE) {
 		t = parser_include(rc);
+	} else if (rc->token.t == T_IF) { // deal the #if define *** #ELSE    #endif
+	} else if (rc->token.t == T_ELSE){
+	} else if (rc->token.t == T_ENDIF){
 	}
 	return t;
 }
-
 
 /*
  * function name: parser_decls
  * to parser decls 
  */
-tree_node_t *parser_decls(parser_rc_t *rc){
+tree_node_t *parser_decls(parser_rc_t *rc) {
 	//
 }
 
@@ -143,7 +142,7 @@ tree_node_t *parser_decls(parser_rc_t *rc){
  * function name: parser_decl
  * to parser decl
  */
-tree_node_t *parser_decl(parser_rc_t *rc){
+tree_node_t *parser_decl(parser_rc_t *rc) {
 	//unsigned ...:number;
 	tree_node_t *t = new_stmt_node(StmtType_Decl);
 	char *name;
@@ -176,13 +175,28 @@ tree_node_t *parser_decl(parser_rc_t *rc){
 	return t;
 }
 
-tree_node_t *parser_state_block(parser_rc_t *rc){}
-tree_node_t *parser_regex_action(parser_rc_t *rc)//{stc|cts+id+:+block} 
+tree_node_t *parser_regex_action(parser_rc_t *rc)//{stc|cts+id/regex+:+block} 
 {
 
 }
+/*
+ * Notice the block is just like {stmts} style. so we need to match the { and the }.
+ */
 tree_node_t *parser_block(parser_rc_t *rc){
-	tree_node_t *t = NULL;
+	tree_node_t *t = new_stmt_node(StmtType_Block);
+	tree_node_t *p;
+	p = t;
+	parser_match(rc,T_LC);
+	while(rc->token.t != T_LC) {
+		tree_node *q = parser_stmt(rc);
+		if (q!=NULL)
+		{
+			p->sibling = q;
+			p = q;
+		}
+	}
+	t = parser_stmts(rc);
+	parser_match(rc,T_RC);
 	return t;
 }
 
@@ -304,35 +318,245 @@ tree_node_t *parser_enum(parser_rc_t *rc){
 	
 }
 
-tree_node_t *parser_stmts(parser_rc_t *rc){
-	tree_node_t *t = NULL;
+tree_node_t *parser_stmts(parser_rc_t *rc) {
+	tree_node_t *t = parser_stmt(rc);
+	tree_node_t *p;
+	p = t;
+	while (rc->token.t != T_DONE && rc->token.t != T_ERROR) {
+		tree_node_t *q = NULL;
+		if (rc->token.t != T_DONE) {
+			q = parser_stmt(rc);
+			if (q != NULL) {
+				if (t == NULL) t = p = q;
+				else {
+					p->sibling = q;
+					p = q;
+				}
+			}
+		}
+	}
 	return t;
 }
+
 tree_node_t *parser_stmt(parser_rc_t *rc){
 	tree_node_t *t = NULL;
+	switch(rc->token.t) {
+		case T_SEMI:
+			parser_match(rc,T_SEMI);
+			break;
+		case T_LC:
+			t = parser_block(rc);
+			break;
+		case T_IF:
+			t = parser_stmt_if(rc);
+			break;
+		case T_WHILE:
+			t = parser_stmt_while(rc);
+			break;
+		case T_DO:
+			t = parser_stmt_do(rc);
+			break;
+		case T_UNSIGNED:
+			t = parser_decl(rc);
+			break;
+		case T_ID:
+			t = parser_stmt_assign(rc);
+			break;
+		case T_STC:
+			t = parser_action_block(rc);
+		case T_CTS:
+			t = parser_action_block(rc);
+		default: 
+			parser_syntx_error(rc,NULL);
+			break;
+	}
+	return t;
+}
+//cts|stc regex|start|end : action_block
+tree_node_t *parser_action_block(parser_rc_t *rc) {
+	 tree_node_t *t = new_stmt_anode(StmtType_ActionBlock);
+	 if (t!= NULL) {
+		if (rc->token.t == T_STC) {
+			//record the stc
+			parser_match(rc,T_STC);
+		} else if (rc->token.t == T_CTS) {
+			//record the cts
+			parser_match(rc,T_CTS);
+		}
+		t->childs[0] = parser_action_regex(rc);
+		parser_match(rc,T_COLON);
+		t-childs[1] = parser_block(rc);
+		return t;
+	 }
+}
+
+//parser the action regex.
+
+tree_node_t *parser_action_regex(parser_rc_t *rc) {
+	tree_node_t *t = newstmt_node(StmtType_Regex);
+	if (t!=NULL) {
+		if (rc->token.t == T_START) {
+			//record the start
+			parser_match(rc,T_START);
+		} else if (rc->token.t == T_END) {
+			//record the end
+			parser_match(rc,T_END);
+		} else if (rc->token.t == T_LITERAL){
+			//record the literal
+			parser_match(rc,T_LITERAL);
+		}
+	}
+	return t;
+}
+
+tree_node_t *parser_stmt_assign(parser_rc_t *rc) {
+	tree_node_t *t = new_stmt_node(StmtType_Assign);
+	if (t!= NULL && rc->token.t = T_ID) {
+		parser_match(rc,T_ID);
+		parser_match(rc,T_ASSIGN);
+		t->childs[0] = parser_stmt_exp(rc);
+		return t;
+	}
+	parser_syntx_error(rc,NULL);
 	return t;
 }
 
 tree_node_t *parser_stmt_exp(parser_rc_t *rc){
 	tree_node_t *t = NULL;
+	tree_node_t *t = parser_simple_exp(rc);
+	if (rc->token.t == T)
 	return t;
 }
+tree_node_t *parser_exp(parser_rc_t *rc) {
+  tree_node_t *t = parser_simple_exp(rc);
+  if (rc->token.t == T_LT ||
+      rc->token.t == T_GT ||
+      rc->token.t == T_LE ||
+      rc->token.t == T_GE ||
+      rc->token.t == T_EQ ||
+      rc->token.t == T_NEQ
+      ) {
+    tree_node_t *p = new_exp_node(ExpType_Op);
+    if (p != NULL) {
+      p->childs[0] = t;
+      p->attr.op = rc->token.t;
+      t = p; 
+    }
+    parser_match(rc, rc->token.t);
+    if (t != NULL)
+      t->childs[1] = parser_simple_exp(rc);
+  }
+  return t;
+}
+
+tree_node_t *parser_simple_exp(parser_rc_t *rc) {
+  tree_node_t *t = parser_term(rc);
+  while (rc->token.t == T_MINUS || rc->token.t == T_PLUS) {
+    tree_node_t *p = new_exp_node(ExpType_Op);
+    if (p != NULL) {
+      p->childs[0] = t;
+      p->attr.op = rc->token.t;
+      t = p;
+      parser_match(rc, rc->token.t);
+      t->childs[1] = parser_term(rc);
+    }
+  }
+  return t;
+}
+
+tree_node_t *parser_term(parser_rc_t *rc) {
+  tree_node_t *t = parser_factor(rc);
+  while (rc->token.t == T_MUL || rc->token.t == T_DIV || rc->token.t == T_MOD) {
+    tree_node_t *p = new_exp_node(ExpType_Op);
+    if (p != NULL) {
+      p->childs[0] = t;
+      p->attr.op = rc->token.t;
+      t = p;
+      parser_match(rc, rc->token.t);
+      t->childs[1] = parser_factor(rc);
+    }
+  }
+  return t;
+}
+
+tree_node_t *parser_factor(parser_rc_t *rc) {
+  tree_node_t *t = NULL;
+  switch (rc->token.t) {
+    case T_INTEGER:
+      t = new_exp_node(ExpType_Integer);
+      t->attr.val = atoi(rc->token.c);
+      parser_match(rc, T_INTEGER);
+      break;
+    case T_DOUBLE:
+      t = new_exp_node(ExpType_Double);
+      t->attr.dval = atof(rc->token.c);
+      parser_match(rc, T_DOUBLE);
+      break;
+    case T_STRING:
+      t = new_exp_node(ExpType_String);
+      t->attr.name = (char *)malloc(strlen(rc->token.c) + 1);
+      memset(t->attr.name, 0, strlen(rc->token.c) + 1);
+      memcpy(t->attr.name, rc->token.c, strlen(rc->token.c));
+      parser_match(rc, T_STRING);
+      break;
+    case T_IDENTIFIER:
+      t = new_exp_node(ExpType_Identifier);
+      t->attr.name = (char *)malloc(strlen(rc->token.c) + 1);
+      memset(t->attr.name, 0, strlen(rc->token.c) + 1);
+      memcpy(t->attr.name, rc->token.c, strlen(rc->token.c));
+      parser_match(rc, T_IDENTIFIER);
+      break;
+    case T_LP:
+      parser_match(rc, T_LP);
+      t = parser_exp(rc);
+      parser_match(rc, T_RP);
+      break;
+    default:
+      parser_syntax_error(rc, NULL);
+      break;
+  }
+  return t;
+}
+
 tree_node_t *parser_stmt_if(parser_rc_t *rc){
-	tree_node_t *t = NULL;
+	tree_node_t *t = new_stmt_node(StmtType_If);
+	parser_match(rc,T_IF);
+	parser_match(rc,T_LP);
+	t->childs[0] = parser_stmt_exp(rc);
+	parser_match(rc,T_RP);
+	if (rc->token.t == T_LC) {
+		t->childs[1] = parser_block(rc);
+	} else {
+		t->childs[1] = parser_stmt_exp(rc);
+	}	
 	return t;
 } 
 tree_node_t *parser_stmt_do(parser_rc_t *rc){
-	tree_node_t *t = NULL;
+	
+	tree_node_t *t = new_stmt_node(StmtType_Do);
+	parser_match(rc,T_DO);
+	t->childs[0] = parser_block(rc);
+	parser_match(rc,T_WHILE);
+	parser_match(rc,T_LP);
+	t->childs[1] = parser_stmt_exp(rc);
+	parser_match(rc,T_RP);
+	parser_match(rc,T_SEMI);
+	
 	return t;
 }
+
 tree_node_t *parser_stmt_while(parser_rc_t *rc){
-	tree_node_t *t = NULL;
+	tree_node_t *t = new_stmt_node(StmtType_While);
+	parser_match(rc,T_WHILE);
+	parser_match(rc,T_LP);
+	t->childs[0] = parser_stmt_exp(rc);
+	parser_match(rc,T_RP);
+	t->childs[1] = parser_block(rc);
 	return t;
 }
 
 void parser_debug(parser_rc_t *rc,tree_node_t * tree){
-	//debug
-	
+	//debug the rc tree
 }
 
 /*
